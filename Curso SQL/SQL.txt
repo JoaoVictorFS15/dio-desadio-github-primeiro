@@ -1,0 +1,426 @@
+alter table TABELA add constraint pk_atributo foreing key (Atributo) references TABELA (atributo);
+
+USE Master
+GO
+CREATE DATABASE Nome_do_Banco_de_Dados
+ON 
+( NAME = nome_dat, 
+  FILENAME = 'C:\Program Files\Microsoft SQL 
+Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\nome.mdf',
+  SIZE = 10,
+  MAXSIZE = 50,
+  FILEGROWTH = 5 )
+LOG ON
+( NAME = nome_log,
+  FILENAME = 'C:\Program Files\Microsoft SQL 
+Server\MSSQL11.MSSQLSERVER\MSSQL\DATA\nomelog.ldf',
+  SIZE = 5MB,
+  MAXSIZE = 25MB,
+  FILEGROWTH = 5MB ) .
+GO
+
+USE master
+GO
+
+CREATE DATABASE RH_TRANSACT
+ON
+	(NAME = RH_TRANSACT_DAT,
+	 FILENAME = 'C:\RH_TRANSACT\RH_TRANSACT.mdf',
+	 SIZE = 15,
+	 MAXSIZE = 50,
+	 FILEGROWTH = 5)
+
+LOG 
+ON
+	 (NAME = RH_TRANSACT_LOG,
+	  FILENAME= 'C:\RH_TRANSACT\RH_TRANSACT.ldf',
+	  SIZE = 5MB,
+	  MAXSIZE = 25MB,
+	  FILEGROWTH = 5MB)
+GO
+
+ON
+Indica o caminho para armazenar arquivos.
+
+FILENAME
+É usado para definir o nome físico de um arquivo.
+
+SIZE
+Define o tamanho de um arquivo.
+
+Pode ser definido utilizando Kilobytes (KB), Megabytes (MB), Gigabytes (GB) ou Terabytes (TB).
+
+MAXSIZE
+É usado para definir o tamanho máximo que um arquivo pode atingir.
+
+FILEGROWTH
+É usado para definir o incremento de crescimento do arquivo.
+
+É possível informar em Kilobytes, Megabytes ou em porcentagem (%).
+
+
+LOGON
+Indica em que lugar os arquivos log devem ser definidos.
+
+Se o maxsize não for informado, o arquivo crescerá de acordo com a base de dados, até que todo o espaço disponível em disco seja utilizado.
+
+Arquivo de Dados
+Armazena as informações do banco de dados. Esse arquivo é o ponto de partida do banco de dados e aponta para os outros arquivos dentro do banco.
+
+Todo banco de dados tem um arquivo de dados primário. A extensão de nome indicada para arquivos de dados primários é .mdf.
+
+Arquivo de Log
+Mantém todas as informações de log usadas para recuperar o banco de dados. Deve haver pelo menos um arquivo de log para cada banco de dados, embora possa haver mais de um. A extensão de nome de arquivo indicada para arquivos de log é .ldf.
+
+Nome_Da_Tabela – Nome da tabela em que os dados vão ser adicionados.
+
+
+Comandos de Gerenciamento: CHECKPOINT
+O CHECKPOINT gera um ponto de verificação manual no Banco de Dados a que você está conectado no momento da execução.
+
+USE RH_TRANSACT
+
+CHECKPOINT 60
+
+go
+
+
+Comandos de Gerenciamento: DBCC
+DBCC (Database Console Comands) são instruções que atuam como comandos de console de Banco de Dados (DBCC) para o SQL Server.
+
+As instruções DBCC estão agrupadas em quatro categorias.
+
+Manutenção
+Realiza tarefas de manutenção em um BD, índice ou grupo de arquivos.
+
+Diversas
+Habilitam sinalizadores de rastreamento, removem uma DLL da memória etc.
+
+Informativas
+Informam as estatísticas da consulta, exibem a situação dos sinalizadores de rastreamento.
+
+Validação
+Realiza validação em tabela, grupo de arquivo, entre outros meios.
+
+O comando DBCC SHRINKFILE T-SQL permite diminuir o tamanho dos dados ou do arquivo de log do atual Banco de Dados.
+
+Sintaxe
+DBCC SHRINKFILE
+(file_name/file_id, EMPTYFILE, target_size, NOTRUNCATE | TRUNCATEONLY)
+WITH NO_INFOMSGS
+
+USE RH_TRANSACT
+GO
+
+SELECT FILE_ID, name, size
+FROM sys.database_files
+
+go
+
+USE RH_TRANSACT
+GO
+
+DBCC SHRINKFILE(3,1)
+WITH NO_INFOMSGS
+
+SELECT FILE_ID, name, size
+FROM sys.database_files
+
+go
+
+
+Comandos de Gerenciamento: SPACEUSED
+O comando SP_SPACEUSED do TRANSACT-SQL exibe o número de linhas, o espaço reservado em um Banco de Dados ou o espaço em disco usado por uma tabela ou view no Banco de Dados atual.
+
+Sintaxe
+sp_spaceused @objname = 'objname',
+@updateusage = 'updateusage'
+
+USE RH_TRANSACT
+GO
+
+EXEC sp_spaceused @updateusage = N'TRUE'
+GO
+
+USE RH_TRANSACT 
+GO  
+
+EXECUTE sp_spaceused @objname = 'Tbl_Funcionarios'
+go
+
+
+Anexar Banco de Dados
+Quando anexamos um Banco de Dados, todos os arquivos de dados (arquivos MDF e LDF) devem estar disponíveis.
+
+Se algum arquivo de dados tiver um caminho diferente do que tinha quando o Banco de Dados foi criado ou anexado pela última vez, será preciso especificar o caminho atual do arquivo.
+
+Desanexar Banco de Dados
+Agora que você já sabe como anexar um Banco de Dados, vamos aprender a desanexar!
+
+É importante saber que, ao desanexar um Banco de Dados, você o remove da instância do SQL Server, mas deixa intacto o Banco de Dados. Desse modo, os arquivos de dados e os arquivos de log de transações ficam preservados.
+
+Sintaxe
+SP_DETACH_DB @dbname = ‘nome_banco_de_dados’,
+@skipchecks = ‘verdadeiro/falso (true/false)’,
+@keepfulltextindexfile = ‘verdadeiro/falso (true/false)’,
+
+exec sp_detach_db 'LOCADORA', 'TRUE'
+
+
+Exportar Dados
+Por fim, vamos conhecer os procedimentos de exportação de dados via SSMS e T-SQL.
+
+Para o T-SQL, vamos usar o utilitário Bulk Copy Program (BCP).
+
+Cabe ressaltar que o utilitário BCP não requer conhecimento de T-SQL.
+
+O BPC é um utilitário de cópia em massa que serve para:
+
+Exportar dados em massa de uma tabela ou consulta SQL Server para um arquivo de dados.
+Importar dados em massa de um arquivo de dados para uma tabela.
+
+Sintaxe
+bcp nome_banco_dados. schema.nome_tabela/nome_view/consulta
+out caminho_do_arquivo
+-U id_login
+-c
+-T
+
+
+BACKUP DATABASE LOCADORA
+FILE = 'LOCADORA_DADOS'
+TO DISK = 'C:\LOCADORA\BKP_LOCADORA_DADOS.bak'
+ 
+BACKUP LOG LOCADORA
+TO DISK = 'C:\LOCADORA\BKP_LOCADORA_LOG.bak'
+
+INSERT INTO – início do comando, indica instrução de inserção de dados na tabela.
+
+Coluna_1, Coluna_N – lugar em que o valor vai ser armazenado.
+
+VALOR 1’, ‘VALOR N’ – lista dos valores separados por vírgulas. Usam-se as aspas simples quando se estiver inserindo texto, por exemplo, M ou F, Brasil etc.
+
+Sintaxe
+CREATE TABLE NomeDaTabela
+
+(
+
+NomeDaColuna TipoDeDados Restrições,
+
+NomeDaColuna TipoDeDados Restrições,
+
+)
+
+NomeDaTabela – poderá conter até 128 caracteres e deverá ser escolhido de forma que clara, coerente com o conteúdo que será inserido, visto que é o local onde os dados serão adicionados.
+
+NomeDaColuna – nome de identificação da coluna da tabela, que deve ser único (diferente de outro na mesma tabela).
+
+TipoDeDados – identificação do tipo de dado que o campo deverá conter: VarChar, Char, Int, podendo permitir Null, Not Null.
+
+Restrições – definição de restrições a serem implementadas no banco de dados tais como: Primary Key, Unique, Clustered/NonClustered e Foreign Key References.
+
+
+Sintaxe
+INSERT INTO Nome_Da_Tabela (Coluna_1, Coluna_2, Coluna_3, Coluna_4,)
+VALUES (‘VALOR 1’, ‘VALOR 2’, ‘VALOR 3’, ‘VALOR 4’);
+
+ UPDATE nome_tabela
+   SET nome_coluna = novo_valor
+   WHERE nome_coluna = valor;
+
+USE Logistica; 
+GO 
+INSERT INTO TableClientes        
+(     
+CodigoDoCliente   , 
+NomeDaEmpresa   , 
+NomeDoContato   , 
+CargoDoContato   , 
+Endereco   , 
+Cidade   , 
+Regiao   , 
+CEP   , 
+Pais   , 
+Telefone   , 
+Fax  
+) 
+VALUES  
+(     
+'WTSNK'   , 
+'United Artists Records'   , 
+'David Coverdale'   , 
+'Gerente de Marketing'   , 
+'Gerente de Marketing'   , 
+'Londres'   , 
+'Westlake Clark '   , 
+'OH 45344'   , 
+'Reino Unido'   , 
+'+44 843 538 0298'   , 
+'+44 121 240 5844' ); 
+
+ SELECT * FROM TableClientes 
+WHERE CodigoDoCliente = 'WTSNK' 
+
+DELETE  FROM  TableClientes WHERE  CodigoDoCliente  =  'WTSNK'
+
+
+WHERE BETWEEN
+Expressão que permite definir um intervalo de valores a ser selecionado.
+
+   Sintaxe
+   BETWEEN VALOR_INICIAL AND VALOR FINAL.
+
+SELECT  *  FROM  TableDetalhesDoPedido WHERE  Quantidade  BETWEEN  50  AND  100;
+
+SELECT  *  FROM  TableDetalhesDoPedido WHERE  Quantidade  >=  50  AND  Quantidade<=100;
+
+WHERE IN
+A expressão IN cria uma lista de dados a ser retornada na consulta.
+
+   IN (Valor 1, Valor 2, Valor 3, …).
+
+SELECT Nomedaempresa ,  NomeDoContato ,  Endereco ,  Pais FROM  TableClientes WHERE  Pais IN('Brasil',  'Alemanha',  'Reino  Unido');
+
+WHERE NOT
+Caso não queira visualizar algum dado no resultado de uma pesquisa, você pode usar o operador NOT junto com IN.
+
+   Sintaxe
+   NOT IN (‘Valor1', ‘Valor2', ‘Valor3');
+
+SELECT  *  FROM  TableClientes WHERE  Pais  NOT  IN  ('Argentina',  'México',  'Suécia',  'Espanha');
+
+WHERE LIKE
+O LIKE verifica se uma cadeia de caracteres corresponde a um padrão especificado.
+
+   LIKE (cadeia de caracteres).
+Antes da demonstração, acesse a tabela Caracteres Curinga, que mostra os caracteres curinga com sua descrição e os exemplos de aplicação do respectivo caractere.
+
+SELECT  * FROM TableProdutos WHERE NomeDoProduto LIKE '%Ch%' ;
+
+Multiplicação
+
+select NumeroDoPedido, PrecoUnitario, Quantidade, Desconto, Total= PrecoUnitario*Quantidade from TableDetalhesDoPedido
+
+concatenaçao
+
+select ('Felix' + 'Sena' + 'Silva')
+
+Sintaxe
+CAST (coluna AS tipo(comprimento))
+CONVERT (tipo (comprimento), coluna, estilo)
+
+CAST
+A função CAST é padrão ANSI, o que significa que pode ser usada em qualquer SGBD.
+
+CONVERT
+Já a função CONVERT é uma função T-SQL, ou seja, específica do Microsoft SQL Server.
+
+Além dessa diferença, a função CONVERT tem um opcional que permite a conversão do dado e a possibilidade de formatar o resultado, o que chamamos de estilo.
+
+A aplicação do estilo é muito útil quando trabalhamos com datatypes, datetime e money/float.
+
+SELECT CONVERT(varchar, Desconto)+ '%' FROM TableDetalhesDoPedido
+
+SELECT CAST(Desconto as varchar ) + '%' FROM TableDetalhesDoPedido
+
+A função ABS( ) retorna o valor absoluto de uma expressão numérica.
+
+    Sintaxe
+    ABS(Expressao_Numerica).
+
+SELECT NumeroDoPedido, ABS(PrecoUnitario) FROM TableDetalhesDoPedido
+WHERE NumeroDoPedido = 10248;
+
+
+A função FLOOR pode ser usada para obter o maior valor inteiro, menor ou igual ao valor definido.
+
+    Sintaxe
+    FLOOR (Expressao_Numerica).
+
+SELECT NumeroDoPedido, FLOOR (PrecoUnitario) FROM TableDetalhesDoPedido
+
+Podemos usar a função ROUND para arredondar a expressão numérica para um certo número de casas decimais.
+
+    Sintaxe
+    ROUND(Expressao_Numerica, Length, Funcao)
+
+SELECT NumeroDoPedido, ROUND (Desconto,2) FROM TableDetalhesDoPedido
+
+Função UPPER
+Converte uma expressão com caracteres minúsculos em uma expressão com caracteres MAIÚSCULOS.
+
+SELECT UPPER (NomeDoContato) FROM TableClientes
+
+Função LOWER
+Converte uma expressão com caracteres maiúsculos em uma expressão com caracteres minúsculos.
+
+
+SELECT LOWER (NomeDaEmpresa) FROM TableClientes
+
+Função LTRIM
+Remove os espaços de uma expressão de caracteres.
+
+SELECT LTRIM ('  FELIX')
+
+
+Função RTRIM
+Apaga os espaços em branco posteriores à expressão de caracteres.
+
+SELECT RTRIM('FELIX   ')
+
+Função LEFT
+Extrai uma parte de caracteres a partir da esquerda de uma string.
+
+SELECT NomeDaCategoria , LEFT (NomeDaCategoria, 3) FROM TableCategorias
+
+Função RIGHT
+Extrai uma parte de caracteres a partir da direita de uma string.
+
+SELECT NomeDaCategoria ,RIGHT FROM (NomeDaCategoria,  5) TableCategorias
+
+Função REVERSE
+Gera o reverso de uma expressão.
+
+SELECT NomeDaEmpresa ,REVERSE FROM (NomeDaEmpresa) TableClientes
+
+Função LEN
+
+Retorna um número de caracteres em uma string. Ao obter o número de caracteres, remove os espaços em branco após os dados.
+
+SELECT NomeDoProduto , LEN (NomeDoProduto) FROM TableProdutos
+
+Função SUBSTRING
+Extrai dados de caracteres de um conjunto de textos.
+
+Sintaxe
+
+SELECT SUBSTRING (Expressao, Inicio, NumeroDeCaracteres).
+
+SELECT  SUBSTRING( NomeDaEmpresa,1,3) FROM TableTransportadora
+
+Função CHARINDEX
+Retorna a posição de um caractere em um texto.
+
+Sintaxe
+
+CHARINDEX (Texto_Procurado, Texto_Pesquisado, Início).
+
+SELECT  CHARINDEX('1',Telefone) FROM TableTransportadora
+
+	
+Logons são criados no nível da instância do Banco de Dados do servidor.
+Permitem que usuários se conectem aos serviços ou instâncias do SQL Server.
+É possível ter logon sem definição, criado sem ter acesso a um Banco de Dados.
+
+
+Usuários são criados no nível de Banco de Dados.
+Podem ser mapeados para um logon que permite ao usuário conectar-se à instância e usar os recursos do Banco de Dados.
+
+LOGON >> Criar
+Podemos criar um logon com base em uma entidade de segurança do Windows – como um usuário de domínio ou um grupo de domínio do Windows – ou com base no SQL Server.
+
+SELECT * FROM   SYS.SYSLOGINS 
+WHERE name 'AdminRent'
+
+SELECT * FROM SYS.sysusers
+WHERE NAME = 'João'
